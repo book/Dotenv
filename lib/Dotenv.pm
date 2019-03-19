@@ -36,6 +36,9 @@ sub parse {
         elsif ( $ref eq 'HASH' ) {    # bare hash ref
             %kv = %$source;
         }
+        elsif ( $ref eq 'ARRAY' ) {
+            %kv = $parse->( join( "\n", @$source ), \%env );
+        }
         elsif ( $ref eq 'SCALAR' ) {
             %kv = $parse->( $$source, \%env );
         }

@@ -12,7 +12,6 @@ my @bad = (
     undef,
     bless( {}, 'Klonk' ),    # object
     sub { },                 # code ref
-    [],                      # array ref
     qr/klonk/,               # regexp
     \\"foo",                 # reference
     *FOO{FORMAT},            # format
