@@ -9,13 +9,43 @@ use Path::Tiny ();
 my $parse = sub {
     my ( $string, $env ) = @_;
     my %kv;
-    for my $line ( split /$/, $string ) {
+    for my $line ( split /$/m, $string ) {
         chomp($line);
-        my ( $k, $v ) = split /\s*=\s*/, $line, 2;
+        next if $line =~ /\A\s*(?:[#:]|\z)/;    # skip blanks and comments
+        if (
+            my ( $k, $v ) =
+            $line =~ m{
+            \A                       # beginning of line
+            \s*                      # leading whitespace
+            (?:export\s+)?           # optional export
+            ([a-zA-Z_][a-zA-Z0-9_]+) # key
+            (?:\s*=\s*)              # separator
+            (                        # optional value begin
+              '[^']*(?:\\'|[^']*)*'  #   single quoted value
+              |                      #   or
+              "[^"]*(?:\\"|[^"]*)*"  #   double quoted value
+              |                      #   or
+              [^\#\r\n]+             #   unquoted value
+            )?                       # value end
+            \s*                      # trailing whitespace
+            (?:\#.*)?                # optional comment
+            \z                       # end of line
+        }x
+          )
+        {
+            $v //= '';
+            $v =~ s/\s*\z//;
 
-        # TODO: munging of "" '' $vars
-
-        $kv{$k} = $v;
+	    # single and double quotes semantics
+            if ( $v =~ s/\A(['"])(.*)\1\z/$2/ && $1 eq '"' ) {
+                $v =~ s/\\n/\n/g;
+                $v =~ s/\\//g;
+            }
+            $kv{$k} = $v;
+        }
+        else {
+            Carp::croak "Can't parse env line: $line";
+        }
     }
     return %kv;
 };
