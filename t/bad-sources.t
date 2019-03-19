@@ -21,7 +21,7 @@ my @bad = (
 for my $source (@bad) {
     my %kv;
     ok(
-        !eval { %kv = Dotenv->load($source); 1; },
+        !eval { %kv = Dotenv->parse($source); 1; },
         ( $source // 'undef' ) . ' is not a valid source'
     );
     like(

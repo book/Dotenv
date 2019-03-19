@@ -1,5 +1,8 @@
 package Dotenv;
 
+use strict;
+use warnings;
+
 use Carp       ();
 use Path::Tiny ();
 
@@ -17,16 +20,16 @@ my $parse = sub {
     return %kv;
 };
 
-sub load {
-    my ( $class, @sources ) = @_;
+sub parse {
+    my ( $package, @sources ) = @_;
     my %env;
-    %env = %ENV if !defined wantarray;
 
     for my $source (@sources) {
         Carp::croak "Can't handle an unitialized value"
           if !defined $source;
+
         my %kv;
-	my $ref = ref $source;
+        my $ref = ref $source;
         if ( $ref eq '' ) {
             %kv = $parse->( $source, \%env );
         }
@@ -39,7 +42,7 @@ sub load {
         elsif ( $ref eq 'GLOB' ) {
             local $/;
             %kv = $parse->( scalar <$source>, \%env );
-            close $content;
+            close $source;
         }
         elsif ( eval { $source->can('getline') } ) {
             local $/;
@@ -54,9 +57,12 @@ sub load {
         %env = ( %kv, %env );
     }
 
-    return !defined wantarray
-      ? %ENV = %env    # replace %ENV in void context
-      : %env;          # return the parsed pairs otherwise
+    return %env;
+}
+
+sub load {
+    my ( $package, @sources ) = @_;
+    %ENV = $package->parse( \%ENV, @sources );
 }
 
 '.env';
@@ -78,20 +84,20 @@ Dotenv - Support for C<dotenv> in Perl
     # the source for environment variables can be
     # a file, a filehandle, a hash reference
     # they are loaded in order in %ENV without modifying existing values
-    Dotenv->load(@env_files);
+    Dotenv->load(@sources);
 
     # add some local stuff to %ENV
-    # (.env is the default if there are no arguments)
+    # (.env is the default only if there are no arguments)
     Dotenv->load( \%my_env );
 
     # return the key/value pairs read in the file,
     # but do not set %ENV
-    my %env = Dotenv->load('app.env');
+    my %env = Dotenv->parse('app.env');
 
-    # dynamically modify %ENV
-    local %ENV = Dotenv->load( 'test.env', \%ENV );
+    # dynamically add to %ENV
+    local %ENV = Dotenv->parse( \%ENV, 'test.env' );
 
     # order of arguments matters, so this might yield different results
-    local %ENV = Dotenv->load( \%ENV, 'test.env' );
+    local %ENV = Dotenv->parse( 'test.env', \%ENV );
 
 =cut
