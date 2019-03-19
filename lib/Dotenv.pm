@@ -8,6 +8,8 @@ use Path::Tiny ();
 
 my $parse = sub {
     my ( $string, $env ) = @_;
+    $string =~ s/\A\x{feff}//;    # drop BOM
+
     my %kv;
     for my $line ( split /$/m, $string ) {
         chomp($line);
