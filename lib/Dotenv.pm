@@ -31,7 +31,7 @@ sub parse {
         my %kv;
         my $ref = ref $source;
         if ( $ref eq '' ) {
-            %kv = $parse->( $source, \%env );
+            %kv = $parse->( Path::Tiny->new($source)->slurp_utf8, \%env );
         }
         elsif ( $ref eq 'HASH' ) {    # bare hash ref
             %kv = %$source;
