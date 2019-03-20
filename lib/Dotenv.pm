@@ -54,8 +54,9 @@ my $parse = sub {
 
 sub parse {
     my ( $package, @sources ) = @_;
-    my %env;
+    @sources = ('.env') if !@sources;
 
+    my %env;
     for my $source (@sources) {
         Carp::croak "Can't handle an unitialized value"
           if !defined $source;
@@ -97,6 +98,7 @@ sub parse {
 
 sub load {
     my ( $package, @sources ) = @_;
+    @sources = ('.env') if !@sources;
     %ENV = $package->parse( \%ENV, @sources );
 }
 
