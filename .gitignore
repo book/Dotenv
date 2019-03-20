@@ -1,0 +1,8 @@
+.build
+*.tar.gz
+Dotenv-*
+cover_db
+*.bak
+*.swp
+*~
+mess
