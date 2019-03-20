@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Path::Tiny;
+use IO::File;
 use Dotenv;
 
 my %expected = (
