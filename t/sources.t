@@ -28,8 +28,8 @@ EOT
 );
 
 for my $source (@sources) {
-    my %got = Dotenv->parse($source);
-    is_deeply( \%got, \%expected, ref $source );
+    my $got = Dotenv->parse($source);
+    is_deeply( $got, \%expected, ref $source );
 }
 
 done_testing;
