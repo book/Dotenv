@@ -6,6 +6,19 @@ use warnings;
 use Carp       ();
 use Path::Tiny ();
 
+sub import {
+    my ( $package, @args ) = @_;
+    if (@args) {
+        my $action = shift @args;
+        if ( $action eq '-load' ) {
+            $package->load(@args);
+        }
+        else {
+            Carp::croak "Unknown action $action";
+        }
+    }
+}
+
 my $parse = sub {
     my ( $string, $env ) = @_;
     $string =~ s/\A\x{feff}//;    # drop BOM
@@ -119,10 +132,16 @@ Dotenv - Support for C<dotenv> in Perl
     use Dotenv;      # exports nothing
     Dotenv->load;    # merge the content of .env in %ENV
 
+    # do it all in one line
+    use Dotenv -load;
+
     # the source for environment variables can be a file, a filehandle,
     # a hash reference, an array reference and several other things
     # the sources are loaded in %ENV without modifying existing values
     Dotenv->load(@sources);
+
+    # sources can also be loaded via import
+    use Dotenv -load => 'local.env';
 
     # add some local stuff to %ENV (from a non-file source)
     # (.env is the default only if there are no arguments)
@@ -173,6 +192,13 @@ key/value pairs obtained for the sources.
 
 If no sources are provided, use the F<.env> file in the current working
 directory as the default source.
+
+C<load> can also be called while loading the module, with the sources
+provided as a LIST (an empty list still means to use the default source):
+
+    use Dotenv -load;
+
+    use Dotenv -load => LIST;
 
 =head1 THE "ENV" FORMAT
 
