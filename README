@@ -1,0 +1,84 @@
+NAME
+
+    Dotenv - Support for "dotenv" in Perl
+
+SYNOPSIS
+
+        # basic operation
+        use Dotenv;      # exports nothing
+        Dotenv->load;    # merge the content of .env in %ENV
+
+        # do it all in one line
+        use Dotenv -load;
+
+        # the source for environment variables can be a file, a filehandle,
+        # a hash reference, an array reference and several other things
+        # the sources are loaded in %ENV without modifying existing values
+        Dotenv->load(@sources);
+
+        # sources can also be loaded via import
+        use Dotenv -load => 'local.env';
+
+        # add some local stuff to %ENV (from a non-file source)
+        # (.env is the default only if there are no arguments)
+        Dotenv->load( \%my_env );
+
+        # return a reference to a hash populated with the key/value pairs
+        # read in the file, but do not set %ENV
+        my $env = Dotenv->parse('app.env');
+
+        # dynamically add to %ENV
+        local %ENV = %{ Dotenv->parse( \%ENV, 'test.env' ) };
+
+        # order of arguments matters, so this might yield different results
+        # (here, values in 'test.env' take precedence over those in %ENV)
+        local %ENV = %{ Dotenv->parse( 'test.env', \%ENV ) };
+
+DESCRIPTION
+
+    "Dotenv" adds support for .env <https://12factor.net/config> to Perl.
+
+    Storing configuration in the environment separate from code comes from
+    The Twelve-Factor App methodology. This is done via .env files, which
+    contains environment variable definitions akin to those one would write
+    for a shell script.
+
+THE "ENV" FORMAT
+  Data Format
+    The "env" data format is a line-based format consisting of lines of the
+    form:
+
+        KEY=VALUE
+
+    The format is somewhat compatible with shell (so with a minimum of
+    effort, it's possible to read the environment variables use the "." or
+    "source" shell builtins).
+
+SEE ALSO
+
+    *   The Twelve-Factor app methodology, <https://12factor.net/>.
+
+    *   Python implentation, <https://pypi.org/project/python-dotenv/>.
+
+    *   Ruby implementation, <https://rubygems.org/gems/dotenv/>.
+
+    *   Node implementation, <https://www.npmjs.com/package/dotenv>.
+
+ACKNOWLEDGEMENTS
+
+    The original version of this module was created as part of my work for
+    BOOKING.COM <http://www.booking.com/>, which authorized its
+    publication/distribution under the same terms as Perl itself.
+
+AUTHOR
+
+    Philippe Bruhat (BooK) <book@cpan.org>
+
+COPYRIGHT
+
+    Copyright 2019 Philippe Bruhat (BooK), all rights reserved.
+
+LICENSE
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
