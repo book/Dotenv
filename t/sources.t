@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use Test::More;
-use Path::Tiny;
 use IO::File;
 use Dotenv;
 
@@ -11,6 +10,8 @@ my %expected = (
     Barbalib    => 'orange',
 );
 
+open my $fh, '<:utf8', 't/env/barb.env';
+
 my @sources = (
     \ << 'EOT',
 Barbabright = blue
@@ -19,7 +20,7 @@ export Barbapapa = pink
 EOT
     [ 'Barbabright=blue', "Barbalib = orange\n   Barbapapa = pink    " ],
     \%expected,
-    Path::Tiny->new('t/env/barb.env')->openr_utf8,
+    $fh,
     do {
         my $io = IO::File->new( 't/env/barb.env', 'r' );
         $io->binmode(':utf8');

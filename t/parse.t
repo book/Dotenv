@@ -1,13 +1,12 @@
 use strict;
 use warnings;
 use Test::More;
-use Path::Tiny;
 use Dotenv;
 
 for my $env ( glob 't/env/*.env' ) {
     ( my $pl = $env ) =~ s/\.env$/\.pl/;
     next unless -e $pl;
-    my %expected = eval Path::Tiny->new($pl)->slurp_utf8;
+    my %expected = do "./$pl";
 
     # parse
     my $got = Dotenv->parse($env);
