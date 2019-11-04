@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Carp       ();
-use Path::Tiny ();
 
 sub import {
     my ( $package, @args ) = @_;
@@ -65,6 +64,18 @@ my $parse = sub {
     return %kv;
 };
 
+my $file_slurp = sub {
+    my ($filename) = @_;
+    open my $fh, '<:utf8', $filename
+        or die "Dotenv: Could not open $filename: $!";
+    my $out = do {
+        local $/;
+        <$fh>
+    };
+    close $fh or die "Dotenv: Could not close $filename: $!";
+    return $out;
+};
+
 sub parse {
     my ( $package, @sources ) = @_;
     @sources = ('.env') if !@sources;
@@ -77,7 +88,7 @@ sub parse {
         my %kv;
         my $ref = ref $source;
         if ( $ref eq '' ) {
-            %kv = $parse->( Path::Tiny->new($source)->slurp_utf8, \%env );
+            %kv = $parse->( $file_slurp->($source), \%env );
         }
         elsif ( $ref eq 'HASH' ) {    # bare hash ref
             %kv = %$source;
