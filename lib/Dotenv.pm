@@ -293,7 +293,7 @@ The Twelve-Factor app methodology, L<https://12factor.net/>.
 
 =item *
 
-Python implentation, L<https://pypi.org/project/python-dotenv/>.
+Python implementation, L<https://pypi.org/project/python-dotenv/>.
 
 =item *
 
