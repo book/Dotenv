@@ -65,20 +65,36 @@ my $parse = sub {
 };
 
 my $file_slurp = sub {
-    my ($filename) = @_;
+    my ($filename, %params) = @_;
+
     open my $fh, '<:utf8', $filename
+        or ($params{no_exception} && return undef)
         or die "Dotenv: Could not open $filename: $!";
+
     my $out = do {
         local $/;
         <$fh>
     };
+
     close $fh or die "Dotenv: Could not close $filename: $!";
     return $out;
 };
 
+my $default_source = sub {
+    my ($sources) = @_;
+
+    # handle default .env file:
+    # read it with 'no_exception' option, and use it if we got a value
+    if (!@{ $sources }) {
+        my $default = $file_slurp->('.env', no_exception => 1);
+        push @{ $sources }, \$default if defined $default;
+    }
+};
+
 sub parse {
     my ( $package, @sources ) = @_;
-    @sources = ('.env') if !@sources;
+
+    $default_source->(\@sources);
 
     my %env;
     for my $source (@sources) {
@@ -122,7 +138,9 @@ sub parse {
 
 sub load {
     my ( $package, @sources ) = @_;
-    @sources = ('.env') if !@sources;
+
+    $default_source->( \@sources );
+
     %ENV = %{ $package->parse( \%ENV, @sources ) };
     return \%ENV;
 }
@@ -325,3 +343,4 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
+
